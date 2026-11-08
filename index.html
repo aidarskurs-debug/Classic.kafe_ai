@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Классик кафе — уютное место с домашней кухней в Алматы</title>
+<meta name="description" content="Классик кафе Зикриллы — домашняя кухня, плов, стейки и десерты. Доставка и бронирование столиков по телефону и в Instagram.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #17130F;
+    --bg-raised: #221A12;
+    --bg-raised-2: #2A2015;
+    --line: rgba(201,166,89,0.16);
+    --gold: #C6A15B;
+    --gold-bright: #E9C888;
+    --text: #F2EADC;
+    --text-dim: #AB9C86;
+    --text-dimmer: #7C7161;
+    --radius: 2px;
+  }
+
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  img{ max-width:100%; display:block; }
+  a{ color: inherit; }
+
+  h1, h2, h3{
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .wrap{
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  /* ---------- Ambient background texture ---------- */
+  .glow{
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 700px 500px at 15% -5%, rgba(198,161,91,0.16), transparent 60%),
+      radial-gradient(ellipse 600px 500px at 90% 15%, rgba(198,161,91,0.09), transparent 55%),
+      radial-gradient(ellipse 900px 700px at 50% 100%, rgba(198,161,91,0.07), transparent 60%);
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 40;
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    background: rgba(23,19,15,0.7);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid transparent;
+    transition: border-color .3s ease, background .3s ease;
+  }
+  .topbar.scrolled{
+    border-bottom: 1px solid var(--line);
+    background: rgba(23,19,15,0.92);
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    text-decoration:none;
+  }
+  .monogram{
+    width: 38px; height: 38px;
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Fraunces', serif;
+    font-size: 15px;
+    color: var(--gold-bright);
+    flex-shrink:0;
+  }
+  .brand-name{
+    font-family:'Fraunces', serif;
+    font-size: 17px;
+    color: var(--text);
+    letter-spacing: 0.01em;
+  }
+  .topbar-call{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    text-decoration:none;
+    font-size: 14px;
+    color: var(--gold-bright);
+    border: 1px solid var(--line);
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    transition: border-color .2s ease, background .2s ease;
+    white-space: nowrap;
+  }
+  .topbar-call:hover{
+    border-color: var(--gold);
+    background: rgba(198,161,91,0.08);
+  }
+  .topbar-call svg{ width:15px; height:15px; flex-shrink:0; }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    min-height: 100svh;
+    display:flex;
+    flex-direction: column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding: 120px 28px 80px;
+    position: relative;
+  }
+  .hero-eyebrow{
+    font-size: 15px;
+    color: var(--text-dim);
+    margin-bottom: 22px;
+    opacity:0;
+  }
+  .hero h1{
+    font-size: clamp(42px, 8vw, 84px);
+    line-height: 1.04;
+    color: var(--text);
+    max-width: 15ch;
+    opacity:0;
+  }
+  .hero h1 em{
+    font-style: italic;
+    color: var(--gold-bright);
+  }
+  .hero-sub{
+    margin-top: 26px;
+    max-width: 46ch;
+    color: var(--text-dim);
+    font-size: 17px;
+    opacity:0;
+  }
+  .hero-actions{
+    margin-top: 40px;
+    display:flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content:center;
+    opacity:0;
+  }
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding: 15px 30px;
+    border-radius: var(--radius);
+    text-decoration:none;
+    font-size: 15px;
+    font-weight: 600;
+    transition: transform .2s ease, background .2s ease, border-color .2s ease;
+  }
+  .btn-solid{
+    background: var(--gold);
+    color: #1A140C;
+  }
+  .btn-solid:hover{ background: var(--gold-bright); transform: translateY(-1px); }
+  .btn-line{
+    border: 1px solid var(--line);
+    color: var(--text);
+  }
+  .btn-line:hover{ border-color: var(--gold); color: var(--gold-bright); }
+  .btn svg{ width:16px; height:16px; }
+
+  @keyframes riseIn{
+    from{ opacity:0; transform: translateY(16px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+  .hero-eyebrow{ animation: riseIn .7s ease .1s forwards; }
+  .hero h1{ animation: riseIn .8s ease .22s forwards; }
+  .hero-sub{ animation: riseIn .8s ease .36s forwards; }
+  .hero-actions{ animation: riseIn .8s ease .48s forwards; }
+
+  @media (prefers-reduced-motion: reduce){
+    .hero-eyebrow, .hero h1, .hero-sub, .hero-actions{ animation: none; opacity: 1; }
+    html{ scroll-behavior: auto; }
+  }
+
+  /* ---------- Section shell ---------- */
+  section{
+    padding: 120px 0;
+    border-top: 1px solid var(--line);
+  }
+  .section-head{
+    margin-bottom: 56px;
+    max-width: 60ch;
+  }
+  .section-head .kicker{
+    color: var(--gold);
+    font-size: 14px;
+    margin-bottom: 14px;
+    display:block;
+  }
+  .section-head h2{
+    font-size: clamp(30px, 4.5vw, 44px);
+    color: var(--text);
+  }
+  .section-head p{
+    margin-top: 16px;
+    color: var(--text-dim);
+    font-size: 16px;
+  }
+
+  /* ---------- Menu ---------- */
+  .menu-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 56px 64px;
+  }
+  .menu-cat h3{
+    font-size: 21px;
+    color: var(--gold-bright);
+    margin-bottom: 22px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .menu-item{
+    display:flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 11px 0;
+  }
+  .menu-item .name{
+    font-size: 15.5px;
+    color: var(--text);
+    white-space: nowrap;
+  }
+  .menu-item .dots{
+    flex:1;
+    border-bottom: 1px dotted var(--text-dimmer);
+    transform: translateY(-4px);
+    min-width: 16px;
+  }
+  .menu-item .price{
+    font-size: 15px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .menu-note{
+    margin-top: 40px;
+    font-size: 14px;
+    color: var(--text-dimmer);
+  }
+
+  /* ---------- Gallery (bento, icon-based placeholders) ---------- */
+  .bento{
+    display:grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-auto-rows: 140px;
+    gap: 14px;
+  }
+  .bento-item{
+    grid-column: span 3;
+    grid-row: span 2;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: linear-gradient(160deg, var(--bg-raised), var(--bg-raised-2));
+    display:flex;
+    flex-direction: column;
+    align-items:center;
+    justify-content:center;
+    gap: 14px;
+    padding: 20px;
+    text-align:center;
+    transition: border-color .25s ease, transform .25s ease;
+  }
+  .bento-item:hover{ border-color: var(--gold); transform: translateY(-3px); }
+  .bento-item:nth-child(1){ grid-column: span 4; grid-row: span 3; }
+  .bento-item:nth-child(2){ grid-column: span 2; grid-row: span 2; }
+  .bento-item:nth-child(3){ grid-column: span 2; grid-row: span 2; }
+  .bento-item:nth-child(4){ grid-column: span 2; grid-row: span 3; }
+  .bento-item:nth-child(5){ grid-column: span 3; grid-row: span 2; }
+  .bento-item:nth-child(6){ grid-column: span 3; grid-row: span 2; }
+  .bento-item svg{ width: 34px; height: 34px; stroke: var(--gold); }
+  .bento-item span{ font-size: 14.5px; color: var(--text-dim); }
+  .gallery-note{
+    margin-top: 28px;
+    font-size: 14px;
+    color: var(--text-dimmer);
+  }
+
+  /* ---------- Testimonials ---------- */
+  .testi-row{
+    display:flex;
+    gap: 24px;
+    overflow-x: auto;
+    padding-bottom: 12px;
+    scroll-snap-type: x mandatory;
+  }
+  .testi-row::-webkit-scrollbar{ height: 4px; }
+  .testi-row::-webkit-scrollbar-thumb{ background: var(--line); }
+  .testi-card{
+    flex: 0 0 min(420px, 86vw);
+    scroll-snap-align: start;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 34px 30px;
+    background: var(--bg-raised);
+  }
+  .testi-mark{
+    font-family:'Fraunces', serif;
+    font-size: 48px;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .testi-text{
+    font-size: 16px;
+    color: var(--text);
+    line-height: 1.65;
+  }
+  .testi-author{
+    margin-top: 22px;
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+
+  /* ---------- FAQ ---------- */
+  .faq-list{
+    border-top: 1px solid var(--line);
+  }
+  details{
+    border-bottom: 1px solid var(--line);
+    padding: 22px 0;
+  }
+  summary{
+    list-style: none;
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    cursor: pointer;
+    font-size: 17px;
+    color: var(--text);
+    gap: 20px;
+  }
+  summary::-webkit-details-marker{ display:none; }
+  .faq-plus{
+    flex-shrink:0;
+    width: 20px; height: 20px;
+    position: relative;
+  }
+  .faq-plus::before, .faq-plus::after{
+    content:'';
+    position:absolute;
+    background: var(--gold);
+    transition: transform .25s ease;
+  }
+  .faq-plus::before{ width:100%; height:1px; top:50%; left:0; transform: translateY(-50%); }
+  .faq-plus::after{ width:1px; height:100%; left:50%; top:0; transform: translateX(-50%); }
+  details[open] .faq-plus::after{ transform: translateX(-50%) scaleY(0); }
+  details p{
+    margin: 16px 0 0;
+    color: var(--text-dim);
+    font-size: 15.5px;
+    max-width: 62ch;
+  }
+
+  /* ---------- Contacts / footer ---------- */
+  .contacts-grid{
+    display:grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 60px;
+  }
+  .contact-line{
+    display:flex;
+    gap: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line);
+    align-items:flex-start;
+  }
+  .contact-line svg{ width:18px; height:18px; stroke: var(--gold); flex-shrink:0; margin-top: 2px; }
+  .contact-line a{ text-decoration:none; }
+  .contact-line a:hover{ color: var(--gold-bright); }
+  .contact-label{ font-size:12.5px; color: var(--text-dimmer); margin-bottom: 3px; }
+  .contact-value{ font-size: 15.5px; color: var(--text); }
+
+  .contacts-side{
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 32px;
+    background: var(--bg-raised);
+  }
+  .contacts-side h3{ font-size: 19px; color: var(--gold-bright); margin-bottom: 16px; }
+  .hours-row{
+    display:flex;
+    justify-content: space-between;
+    font-size: 14.5px;
+    color: var(--text-dim);
+    padding: 8px 0;
+    border-bottom: 1px dotted var(--line);
+  }
+
+  footer{
+    padding: 40px 0 120px;
+    text-align:center;
+    font-size: 13px;
+    color: var(--text-dimmer);
+  }
+
+  /* ---------- Mobile sticky CTA ---------- */
+  .mobile-cta{
+    display:none;
+  }
+
+  @media (max-width: 760px){
+    section{ padding: 84px 0; }
+    .menu-grid{ grid-template-columns: 1fr; gap: 44px; }
+    .bento{ grid-template-columns: repeat(2,1fr); grid-auto-rows: 130px; }
+    .bento-item, .bento-item:nth-child(n){ grid-column: span 1; grid-row: span 2; }
+    .contacts-grid{ grid-template-columns: 1fr; gap: 36px; }
+    .topbar-call span{ display:none; }
+    .mobile-cta{
+      display:flex;
+      position: fixed;
+      bottom: 0; left:0; right:0;
+      z-index: 50;
+      padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+      background: rgba(23,19,15,0.96);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid var(--line);
+    }
+    .mobile-cta a{
+      flex:1;
+      text-align:center;
+      justify-content:center;
+    }
+    footer{ padding-bottom: 110px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="glow"></div>
+
+<header class="topbar" id="topbar">
+  <a href="#top" class="brand">
+    <span class="monogram">ЗК</span>
+    <span class="brand-name">Классик кафе</span>
+  </a>
+  <a class="topbar-call" href="tel:+77781730000">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+    <span>+7 778 173 00 00</span>
+  </a>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <span class="hero-eyebrow">Зикрилла Классик кафе · Шымкент</span>
+    <h1>Вкус, который<br>помнят <em>с первой ложки</em></h1>
+    <p class="hero-sub">Домашняя кухня без спешки: плов, стейки, лагман и десерты, приготовленные так же, как готовят для своих. Столик или доставка — в один звонок.</p>
+    <div class="hero-actions">
+      <a class="btn btn-solid" href="tel:+77781730000">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        Позвонить и заказать
+      </a>
+      <a class="btn btn-line" href="https://www.instagram.com/classic_kafe_/" target="_blank" rel="noopener">
+        Смотреть в Instagram
+      </a>
+    </div>
+  </section>
+
+  <section id="menu">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Меню</span>
+        <h2>Меню и цены</h2>
+        <p>Основные позиции нашего меню. Полный список блюд и сезонные предложения — по телефону или в Instagram.</p>
+      </div>
+
+      <div class="menu-grid">
+        <div class="menu-cat">
+          <h3>Закуски и салаты</h3>
+          <div class="menu-item"><span class="name">Салат «Цезарь» с курицей</span><span class="dots"></span><span class="price">2 400 ₸</span></div>
+          <div class="menu-item"><span class="name">Салат из свежих овощей</span><span class="dots"></span><span class="price">1 800 ₸</span></div>
+          <div class="menu-item"><span class="name">Брускетта с томатами и базиликом</span><span class="dots"></span><span class="price">1 900 ₸</span></div>
+          <div class="menu-item"><span class="name">Куриные крылья BBQ</span><span class="dots"></span><span class="price">2 600 ₸</span></div>
+
+          <h3 style="margin-top:40px;">Десерты</h3>
+          <div class="menu-item"><span class="name">Чизкейк «Нью-Йорк»</span><span class="dots"></span><span class="price">1 700 ₸</span></div>
+          <div class="menu-item"><span class="name">Тирамису</span><span class="dots"></span><span class="price">1 800 ₸</span></div>
+          <div class="menu-item"><span class="name">Медовик</span><span class="dots"></span><span class="price">1 600 ₸</span></div>
+        </div>
+
+        <div class="menu-cat">
+          <h3>Горячие блюда</h3>
+          <div class="menu-item"><span class="name">Стейк из говядины с овощами гриль</span><span class="dots"></span><span class="price">4 800 ₸</span></div>
+          <div class="menu-item"><span class="name">Плов по-классически</span><span class="dots"></span><span class="price">2 500 ₸</span></div>
+          <div class="menu-item"><span class="name">Лагман с говядиной</span><span class="dots"></span><span class="price">2 300 ₸</span></div>
+          <div class="menu-item"><span class="name">Паста «Карбонара»</span><span class="dots"></span><span class="price">2 900 ₸</span></div>
+          <div class="menu-item"><span class="name">Пицца «Маргарита»</span><span class="dots"></span><span class="price">2 700 ₸</span></div>
+
+          <h3 style="margin-top:40px;">Напитки</h3>
+          <div class="menu-item"><span class="name">Капучино</span><span class="dots"></span><span class="price">900 ₸</span></div>
+          <div class="menu-item"><span class="name">Латте</span><span class="dots"></span><span class="price">1 000 ₸</span></div>
+          <div class="menu-item"><span class="name">Свежевыжатый апельсиновый сок</span><span class="dots"></span><span class="price">1 400 ₸</span></div>
+          <div class="menu-item"><span class="name">Чайник чая</span><span class="dots"></span><span class="price">800 ₸</span></div>
+        </div>
+      </div>
+      <p class="menu-note">Цены указаны для примера — замените на актуальные значения из вашего меню.</p>
+    </div>
+  </section>
+
+  <section id="gallery">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Блюда</span>
+        <h2>Из нашей кухни</h2>
+        <p>Здесь будут фотографии блюд и зала. Пока — ориентиры для будущей фотосъёмки.</p>
+      </div>
+      <div class="bento">
+        <div class="bento-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.3"><path d="M4 19h16M6 19V9a6 6 0 0 1 12 0v10"/></svg>
+          <span>Стейк из говядины</span>
+        </div>
+        <div class="bento-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.3"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>
+          <span>Плов по-классически</span>
+        </div>
+        <div class="bento-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.3"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><path d="M6 2v3M10 2v3M14 2v3"/></svg>
+          <span>Капучино</span>
+        </div>
+        <div class="bento-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.3"><path d="M3 3h18v6a9 9 0 0 1-18 0V3z"/><path d="M7 21h10M12 15v6"/></svg>
+          <span>Тирамису</span>
+        </div>
+        <div class="bento-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.3"><path d="M4 21c0-6 4-10 8-10s8 4 8 10"/><path d="M12 11V3"/></svg>
+          <span>Салат «Цезарь»</span>
+        </div>
+        <div class="bento-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.3"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>
+          <span>Пицца «Маргарита»</span>
+        </div>
+      </div>
+      <p class="gallery-note">Замените блоки выше на реальные фотографии блюд и интерьера — это заметно повысит доверие гостей.</p>
+    </div>
+  </section>
+
+  <section id="testimonials">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Отзывы</span>
+        <h2>Что говорят гости</h2>
+      </div>
+      <div class="testi-row">
+        <div class="testi-card">
+          <div class="testi-mark">“</div>
+          <p class="testi-text">Уютная атмосфера и всегда свежие блюда. Плов здесь готовят так, как готовила бабушка.</p>
+          <p class="testi-author">Айгерим Т.</p>
+        </div>
+        <div class="testi-card">
+          <div class="testi-mark">“</div>
+          <p class="testi-text">Заказываю доставку каждую неделю — стейк никогда не подводит, а порции честные.</p>
+          <p class="testi-author">Данияр К.</p>
+        </div>
+        <div class="testi-card">
+          <div class="testi-mark">“</div>
+          <p class="testi-text">Отличное место для семейного ужина. Персонал очень внимательный, дети были в восторге от медовика.</p>
+          <p class="testi-author">Мадина С.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Вопросы</span>
+        <h2>Частые вопросы</h2>
+      </div>
+      <div class="faq-list">
+        <details>
+          <summary>Работаете ли вы на доставку?<span class="faq-plus"></span></summary>
+          <p>Да, доставляем по городу. Оформить заказ можно по телефону или в Instagram — уточним адрес и время.</p>
+        </details>
+        <details>
+          <summary>Можно ли забронировать столик?<span class="faq-plus"></span></summary>
+          <p>Да, свяжитесь с нами заранее по телефону — подберём удобное время и закрепим столик.</p>
+        </details>
+        <details>
+          <summary>Есть ли блюда без мяса?<span class="faq-plus"></span></summary>
+          <p>Да, в меню есть салаты и блюда без мяса. Уточняйте состав у официанта при заказе.</p>
+        </details>
+        <details>
+          <summary>Принимаете ли оплату картой?<span class="faq-plus"></span></summary>
+          <p>Принимаем наличные и оплату картой, а также переводом при доставке.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section id="contacts">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Контакты</span>
+        <h2>Как нас найти</h2>
+      </div>
+      <div class="contacts-grid">
+        <div>
+          <div class="contact-line">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <div>
+              <div class="contact-label">Телефон</div>
+              <a class="contact-value" href="tel:+77781730000">+7 778 173 00 00</a>
+            </div>
+          </div>
+          <div class="contact-line">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+            <div>
+              <div class="contact-label">Instagram</div>
+              <a class="contact-value" href="https://www.instagram.com/classic_kafe_/" target="_blank" rel="noopener">@classic_kafe_</a>
+            </div>
+          </div>
+          <div class="contact-line">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <div>
+              <div class="contact-label">Адрес</div>
+              <div class="contact-value">г. Шымкент, Кольгент, ул. Нурлы жол 14/1</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="contacts-side">
+          <h3>Часы работы</h3>
+          <div class="hours-row"><span>Ежедневно</span><span>10:00 – 23:00</span></div>
+          <div class="hours-row" style="border-bottom:none;"><span>Доставка</span><span>по графику работы</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">© 2026 Зикрилла Классик кафе. Все права защищены.</div>
+  </footer>
+
+</main>
+
+<div class="mobile-cta">
+  <a class="btn btn-solid" href="tel:+77781730000">Позвонить и заказать</a>
+</div>
+
+<script>
+  const topbar = document.getElementById('topbar');
+  window.addEventListener('scroll', () => {
+    topbar.classList.toggle('scrolled', window.scrollY > 20);
+  }, { passive: true });
+</script>
+
+</body>
+</html>
