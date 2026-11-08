@@ -1,0 +1,1048 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Шашлик савдо дафтари</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Unbounded:wght@500;700&display=swap">
+<style>
+/* Layout: one working panel for the chosen day beside its calendar; the panel comes first on a phone. Palette from Rishtan ceramics: cobalt and teal on cool glaze. */
+:root {
+  color-scheme: light;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  --bg: #bfdcf5;
+  --surface: #ffffff;
+  --ink: #102a43;
+  --muted: #3f5266;
+  --line: #00000018;
+  --accent: #1b4fa0;
+  --on-accent: #ffffff;
+  --teal: #0b7a80;
+  --danger: #a31f18;
+  --tint-head: #d4e2fb;
+  --tint-sales: #c9f0e2;
+  --tint-cost: #fde6b0;
+  --tint-stock: #fad3dc;
+  --tint-cal: #dcd6fb;
+  --tint-month: #c9f0e2;
+  --display: "Unbounded", "Golos Text", "Segoe UI", sans-serif;
+  --body: "Golos Text", "Segoe UI", Roboto, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12304f;
+    --surface: #15212e;
+    --ink: #eef3f8;
+    --muted: #b4c4d3;
+    --line: #ffffff1f;
+    --accent: #8db6f5;
+    --on-accent: #0d1620;
+    --teal: #55c6ca;
+    --danger: #ffb0a8;
+    --tint-head: #1d3556;
+    --tint-sales: #14433b;
+    --tint-cost: #4a3710;
+    --tint-stock: #4d2231;
+    --tint-cal: #2f2a5e;
+    --tint-month: #14433b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12304f;
+  --surface: #15212e;
+  --ink: #eef3f8;
+  --muted: #b4c4d3;
+  --line: #ffffff1f;
+  --accent: #8db6f5;
+  --on-accent: #0d1620;
+  --teal: #55c6ca;
+  --danger: #ffb0a8;
+  --tint-head: #1d3556;
+  --tint-sales: #14433b;
+  --tint-cost: #4a3710;
+  --tint-stock: #4d2231;
+  --tint-cal: #2f2a5e;
+  --tint-month: #14433b;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.4;
+}
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: default; }
+:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+[hidden] { display: none !important; }
+
+.wrap {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding-block: 12px 24px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid;
+  gap: 10px;
+}
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.brand svg { flex: none; }
+h1 { font-family: var(--display); font-weight: 700; font-size: .95rem; line-height: 1.25; margin: 0; text-wrap: balance; }
+.status { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .875rem; min-height: 1.5em; }
+.status.error { color: var(--danger); }
+.link-btn { background: none; border: 0; padding: 0; color: var(--accent); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+
+.notice { margin: 0; padding: 8px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--muted); font-size: .85rem; }
+
+.columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.columns > * { min-width: 0; }
+
+/* Day panel */
+.day { background: var(--tint-head); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; scroll-margin-top: 12px; }
+.day-head { padding: 12px 14px 6px; display: grid; gap: 2px; }
+#rows { background: var(--tint-sales); padding-inline: 14px; }
+.sub, .pair { background: var(--tint-cost); padding-inline: 14px; }
+.stock-head, #stock-list, .debt-line { background: var(--tint-stock); padding-inline: 14px; }
+.day-title { display: flex; align-items: baseline; justify-content: space-between; gap: 4px 12px; flex-wrap: wrap; }
+h2 { font-family: var(--display); font-weight: 500; font-size: 1rem; line-height: 1.3; margin: 0; }
+.hint { margin: 0; color: var(--muted); font-size: .85rem; }
+.day fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.day fieldset:disabled { opacity: .6; }
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px minmax(84px, auto);
+  grid-template-areas: "name input sum" "price input sum";
+  align-items: center;
+  gap: 0 10px;
+  padding-block: 3px;
+  border-top: 1px solid var(--line);
+}
+.name { grid-area: name; font-weight: 600; font-size: .95rem; line-height: 1.2; }
+.price { grid-area: price; color: var(--muted); font-size: .75rem; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.sum { grid-area: sum; justify-self: end; font-weight: 600; font-size: .95rem; font-variant-numeric: tabular-nums; }
+.row input { grid-area: input; }
+.row input, .cost input, .stock-row input, .money input {
+  width: 100%; height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  padding-inline: 6px;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.day input::placeholder { color: var(--muted); font-weight: 400; }
+.day input:focus { border-color: var(--accent); }
+.sub { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-block: 8px; border-top: 1px solid var(--line); font-weight: 600; font-variant-numeric: tabular-nums; }
+.sub small { color: var(--muted); font-size: .8rem; font-weight: 400; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding-block: 5px; border-top: 1px solid var(--line); }
+.cost { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.cost label { font-weight: 600; font-size: .95rem; }
+.cost input { flex: 1; min-width: 0; }
+.stock-head, .stock-row { display: grid; grid-template-columns: minmax(0, 1fr) 84px 84px; align-items: center; gap: 8px; }
+.stock-head { padding-top: 6px; border-top: 1px solid var(--line); color: var(--muted); font-size: .8rem; text-align: center; }
+.stock-head strong { color: var(--ink); font-size: .95rem; font-weight: 600; text-align: left; }
+.stock-row { padding-block: 3px; }
+.stock-name { font-weight: 600; font-size: .95rem; line-height: 1.2; min-width: 0; }
+.stock-name small { display: block; color: var(--muted); font-size: .75rem; font-weight: 400; font-variant-numeric: tabular-nums; }
+.debt-line { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-block: 6px; font-size: .9rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.money-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 3px; border-top: 1px solid var(--line); }
+.money-row label { font-weight: 600; font-size: .95rem; min-width: 0; }
+.money { flex: none; display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: .8rem; }
+.money input { width: 84px; color: var(--ink); }
+.prices summary { width: fit-content; padding-block: 2px; color: var(--accent); font-size: .85rem; font-weight: 600; cursor: pointer; }
+.day-head fieldset { padding: 4px 0; }
+.price-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; padding-top: 6px; border-top: 1px solid var(--line); }
+.primary { height: 38px; padding-inline: 14px; border: 0; border-radius: 8px; background: var(--accent); color: var(--on-accent); font-weight: 600; }
+.total {
+  background: var(--accent);
+  color: var(--on-accent);
+  padding: 8px 14px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 4px 16px;
+  flex-wrap: wrap;
+}
+.total-label { font-size: .8rem; }
+.total-pieces { font-size: .8rem; font-variant-numeric: tabular-nums; }
+.total-side { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.save-btn { height: 38px; min-width: 124px; padding-inline: 14px; border: 0; border-radius: 8px; background: var(--on-accent); color: var(--accent); font-weight: 700; }
+.save-btn:disabled { opacity: .7; }
+.save-btn:focus-visible { outline-color: var(--on-accent); }
+.total-sum { font-family: var(--display); font-weight: 700; font-size: 1.25rem; line-height: 1.15; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+
+/* Calendar */
+.side { display: grid; gap: 14px; }
+.side > section { min-width: 0; padding: 10px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--tint-cal); }
+.side > section:last-child { background: var(--tint-month); }
+.month-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.month-nav button {
+  width: 36px; height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.month-nav button:disabled { opacity: .35; }
+.grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+.wd { text-align: center; color: var(--muted); font-size: .7rem; }
+.cell {
+  min-height: 42px;
+  padding: 3px 1px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) var(--heat, 0%), var(--surface));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0;
+  font-variant-numeric: tabular-nums;
+}
+.cell b { font-weight: 600; font-size: .85rem; line-height: 1.2; }
+.cell small { font-size: .65rem; line-height: 1.2; min-height: 1.2em; }
+.cell:hover:not(:disabled) { border-color: var(--accent); }
+.cell.today { border-color: var(--teal); box-shadow: inset 0 0 0 1px var(--teal); }
+.cell.sel { background: var(--accent); color: var(--on-accent); border-color: var(--accent); box-shadow: none; }
+.cell:disabled { background: none; color: var(--muted); opacity: .55; }
+.legend { margin: 4px 0 0; color: var(--muted); font-size: .75rem; }
+
+/* Month summary */
+.month-total { display: flex; align-items: baseline; justify-content: space-between; gap: 4px 12px; flex-wrap: wrap; }
+.eyebrow { color: var(--muted); font-size: .8rem; }
+.big { font-family: var(--display); font-weight: 700; font-size: 1.15rem; line-height: 1.15; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 12px; margin: 6px 0 0; }
+.stats div { min-width: 0; }
+.stats dt { color: var(--muted); font-size: .72rem; }
+.stats dd { margin: 0; font-weight: 600; font-size: .9rem; font-variant-numeric: tabular-nums; }
+.more { margin-top: 6px; }
+.more summary { width: fit-content; color: var(--accent); font-size: .85rem; font-weight: 600; cursor: pointer; }
+.table-box { overflow-x: auto; margin-top: 6px; }
+table { width: 100%; border-collapse: collapse; font-size: .9rem; font-variant-numeric: tabular-nums; }
+th, td { padding: 4px 0 4px 12px; text-align: right; border-top: 1px solid var(--line); white-space: nowrap; }
+th:first-child, td:first-child { padding-left: 0; text-align: left; }
+thead th { border-top: 0; color: var(--muted); font-size: .8rem; font-weight: 500; }
+tfoot td { font-weight: 700; }
+
+@media (max-width: 860px) {
+  .columns { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+}
+</style>
+</head>
+<body>
+
+<main class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg width="40" height="22" viewBox="0 0 40 22" aria-hidden="true">
+        <rect x="0" y="10" width="40" height="2" rx="1" fill="var(--muted)"></rect>
+        <rect x="6" y="3" width="8" height="16" rx="3" fill="var(--accent)"></rect>
+        <rect x="16" y="3" width="8" height="16" rx="3" fill="var(--teal)"></rect>
+        <rect x="26" y="3" width="8" height="16" rx="3" fill="var(--accent)"></rect>
+      </svg>
+      <h1>Шашлик савдо дафтари</h1>
+    </div>
+    <div class="status" id="status" role="status">
+      <span id="status-text">Юкланмоқда…</span>
+      <button class="link-btn" id="retry" type="button" hidden>Қайта уриниш</button>
+    </div>
+  </header>
+
+  <p class="notice" id="notice" hidden>Ёзувлар шу браузерда сақланади. Бошқа телефон ёки компьютерда кўринмайди.</p>
+
+  <div class="columns">
+    <section class="day" id="day" aria-labelledby="day-title">
+      <div class="day-head">
+        <div class="day-title">
+          <h2 id="day-title"></h2>
+          <button class="link-btn" id="to-today" type="button" hidden>Бугунга қайтиш</button>
+        </div>
+        <details class="prices" id="prices">
+          <summary>Нархни ўзгартириш</summary>
+          <fieldset id="price-rows" disabled>
+            <p class="hint" id="price-note"></p>
+            <div id="price-list"></div>
+            <div class="price-actions">
+              <button class="primary" id="price-save" type="button">Нархни сақлаш</button>
+              <span class="hint" id="price-msg" role="status"></span>
+            </div>
+          </fieldset>
+        </details>
+      </div>
+      <fieldset id="rows" disabled></fieldset>
+      <fieldset id="costs" disabled>
+        <div class="sub">
+          <span>Кун жами <small id="day-pieces">0 дона</small></span>
+          <span id="day-sum">0 тг</span>
+        </div>
+        <div class="pair" id="pair"></div>
+        <div class="stock-head"><strong>Склад</strong><span>Олинди</span><span>Минус</span></div>
+        <div id="stock-list"></div>
+        <div class="debt-line"><span id="debt-label">Складга жами қарз</span><span id="debt-sum">0 тг</span></div>
+      </fieldset>
+      <div class="total">
+        <div>
+          <div class="total-label">Қолди</div>
+          <div class="total-sum" id="day-net">0 тг</div>
+        </div>
+        <div class="total-side">
+          <div class="total-pieces" id="day-minus">Айирилди: 0 тг</div>
+          <button class="save-btn" id="save" type="button" disabled>Сақлаш</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="side">
+      <section aria-labelledby="month-title">
+        <div class="month-nav">
+          <button id="prev" type="button" aria-label="Олдинги ой">‹</button>
+          <h2 id="month-title"></h2>
+          <button id="next" type="button" aria-label="Кейинги ой">›</button>
+        </div>
+        <div class="grid" id="calendar"></div>
+        <p class="legend">к = минг тг</p>
+      </section>
+
+      <section aria-label="Ой якуни">
+        <div class="month-total">
+          <span class="eyebrow" id="month-label"></span>
+          <span class="big" id="month-sum">0 тг</span>
+        </div>
+        <dl class="stats">
+          <div><dt>Сотилди</dt><dd id="m-pieces">0 дона</dd></div>
+          <div><dt>Савдо кунлари</dt><dd id="m-days">0</dd></div>
+          <div><dt>Кунига ўртача</dt><dd id="m-avg-pieces">0 дона</dd></div>
+          <div><dt>Обед</dt><dd id="m-obed">0 тг</dd></div>
+          <div><dt>Аванс</dt><dd id="m-avans">0 тг</dd></div>
+          <div><dt>Қолди</dt><dd id="m-net">0 тг</dd></div>
+        </dl>
+        <details class="more">
+        <summary>Батафсил</summary>
+        <div class="table-box">
+          <table>
+            <thead><tr><th scope="col">Шашлик</th><th scope="col">Дона</th><th scope="col">Тушум</th></tr></thead>
+            <tbody id="m-rows"></tbody>
+            <tfoot><tr><td>Жами</td><td id="m-foot-pieces">0</td><td id="m-foot-sum">0 тг</td></tr></tfoot>
+          </table>
+        </div>
+        <div class="table-box">
+          <table>
+            <thead><tr><th scope="col">Склад</th><th scope="col">Олинди</th><th scope="col">Айирилди</th></tr></thead>
+            <tbody id="s-rows"></tbody>
+            <tfoot><tr><td>Жами</td><td id="s-taken">0 тг</td><td id="s-deducted">0 тг</td></tr></tfoot>
+          </table>
+        </div>
+        </details>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  const PRODUCTS = [
+    { id: "kuskavoy", name: "Кускавой", price: 670 },
+    { id: "farsh", name: "Фарш", price: 670 },
+    { id: "gijdivon", name: "Гиждивон", price: 670 },
+    { id: "utka", name: "Утка", price: 570 },
+    { id: "krilya", name: "Криля", price: 620 },
+  ];
+  const STOCK = [
+    { id: "utka", name: "Утка" },
+    { id: "krilya", name: "Криля" },
+    { id: "bulyon", name: "Бульон" },
+    { id: "pripava", name: "Приправа" },
+    { id: "zira", name: "Зира" },
+  ];
+  const MAX_QTY = 99999;
+  const MAX_MONEY = 999999999;
+  const SAVE_DELAY = 500;
+  const MONTHS = ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"];
+  const WEEKDAYS = ["якшанба", "душанба", "сешанба", "чоршанба", "пайшанба", "жума", "шанба"];
+  const WD_SHORT = ["Душ", "Сеш", "Чор", "Пай", "Жум", "Шан", "Якш"];
+
+  const $ = (id) => document.getElementById(id);
+  const money = (n) => n.toLocaleString("ru-RU") + " тг";
+  const count = (n) => n.toLocaleString("ru-RU");
+  const pad = (n) => String(n).padStart(2, "0");
+  const dateKey = (y, m, d) => y + "-" + pad(m + 1) + "-" + pad(d);
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+  function todayKey() {
+    const t = new Date();
+    return dateKey(t.getFullYear(), t.getMonth(), t.getDate());
+  }
+  function parts(key) {
+    const [y, m, d] = key.split("-").map(Number);
+    return { y, m: m - 1, d };
+  }
+  function compact(n) {
+    if (n < 1000) return String(n);
+    const k = n / 1000;
+    return (k < 100 ? String(Math.round(k * 10) / 10).replace(".", ",") : String(Math.round(k))) + "к";
+  }
+
+  // Each day keeps the prices it was sold at, so a later price change leaves old days as they were.
+  function makeDay(src) {
+    const s = src || {};
+    const day = {
+      qty: {}, prices: {}, stock: {}, minus: {},
+      obed: Number(s.obed) || 0,
+      avans: Number(s.avans) || 0,
+      pieces: 0, total: 0, taken: 0, deducted: 0,
+    };
+    for (const p of PRODUCTS) {
+      const q = Number(s.qty && s.qty[p.id]) || 0;
+      const price = Number(s.prices && s.prices[p.id]) || p.price;
+      day.qty[p.id] = q;
+      day.prices[p.id] = price;
+      day.pieces += q;
+      day.total += q * price;
+    }
+    for (const item of STOCK) {
+      const sum = Number(s.stock && s.stock[item.id]) || 0;
+      const minus = Number(s.minus && s.minus[item.id]) || 0;
+      day.stock[item.id] = sum;
+      day.minus[item.id] = minus;
+      day.taken += sum;
+      day.deducted += minus;
+    }
+    day.net = day.total - day.obed - day.avans - day.deducted;
+    day.empty = !(day.pieces || day.obed || day.avans || day.taken || day.deducted);
+    return day;
+  }
+
+  // Standalone fallback: outside claude.ai the records live in this browser's localStorage, behind the same calls the shared database answers.
+  function localStore() {
+    const KEY = "shashlik-savdo";
+    let data = {};
+    try { data = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { data = {}; }
+    if (!data.cols || typeof data.cols !== "object") data.cols = {};
+    if (!data.docs || typeof data.docs !== "object") data.docs = {};
+    const listeners = new Map();
+    const meta = { fromCache: false, hasPendingWrites: false };
+    const persist = () => {
+      try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) { throw { code: "storage", message: String(e) }; }
+    };
+    const notify = (topic) => { for (const fn of listeners.get(topic) || []) fn(); };
+    const listen = (topic, emit) => (next) => {
+      const fn = () => next(emit());
+      if (!listeners.has(topic)) listeners.set(topic, new Set());
+      listeners.get(topic).add(fn);
+      setTimeout(fn, 0);
+      return () => listeners.get(topic).delete(fn);
+    };
+    const docSnap = (id, v) => ({ id, exists: v !== undefined, data: () => v, metadata: meta });
+    return {
+      collection(name) {
+        const col = () => (data.cols[name] = data.cols[name] || {});
+        const emit = () => {
+          const docs = Object.keys(col()).sort().map((id) => docSnap(id, col()[id]));
+          return { docs, size: docs.length, empty: !docs.length, metadata: meta };
+        };
+        return {
+          doc(id) {
+            return {
+              id,
+              async get() { return docSnap(id, col()[id]); },
+              async set(body) { col()[id] = body; persist(); notify(name); },
+              async delete() { delete col()[id]; persist(); notify(name); },
+            };
+          },
+          onSnapshot: listen(name, emit),
+        };
+      },
+      doc(path) {
+        const id = path.split("/").pop();
+        return {
+          id,
+          async get() { return docSnap(id, data.docs[path]); },
+          async set(body) { data.docs[path] = body; persist(); notify(path); },
+          async delete() { delete data.docs[path]; persist(); notify(path); },
+          onSnapshot: listen(path, () => docSnap(id, data.docs[path])),
+        };
+      },
+    };
+  }
+
+  let db = null;
+  let docs = new Map();
+  const pending = new Map();
+  let selected = todayKey();
+  let view = { y: parts(selected).y, m: parts(selected).m };
+  let saveTimer = null;
+  let flushing = false;
+  let readOnly = false;
+  let priceHistory = [];
+
+  function pricesFor(key) {
+    const prices = {};
+    for (const h of priceHistory) if (h.from <= key) Object.assign(prices, h.prices);
+    return prices;
+  }
+
+  const dayOf = (key) => {
+    if (pending.has(key)) return pending.get(key);
+    return makeDay(docs.get(key) || { prices: pricesFor(key) });
+  };
+  const lock = (locked) => {
+    for (const id of ["rows", "costs", "price-rows", "save"]) $(id).disabled = locked;
+  };
+
+  function setStatus(text, isError) {
+    $("status-text").textContent = text;
+    $("status").classList.toggle("error", !!isError);
+    $("retry").hidden = !isError || readOnly;
+  }
+
+  /* Rows are built once; rendering only updates their values. */
+  const fields = {};
+  const moneyFields = [];
+  const inputs = [];
+  function nextOnEnter(input) {
+    input.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      const next = inputs[inputs.indexOf(input) + 1];
+      if (next) next.focus();
+      else input.blur();
+    });
+  }
+  for (const p of PRODUCTS) {
+    const row = document.createElement("div");
+    row.className = "row";
+    const label = document.createElement("label");
+    label.className = "name";
+    label.htmlFor = "q-" + p.id;
+    label.textContent = p.name;
+    const input = document.createElement("input");
+    input.id = "q-" + p.id;
+    input.type = "text";
+    input.inputMode = "numeric";
+    input.autocomplete = "off";
+    input.placeholder = "0";
+    input.maxLength = 5;
+    const price = document.createElement("span");
+    price.className = "price";
+    const sum = document.createElement("output");
+    sum.className = "sum";
+    sum.htmlFor = input.id;
+    row.append(label, input, price, sum);
+    $("rows").append(row);
+    fields[p.id] = { input, price, sum };
+
+    input.addEventListener("focus", () => input.select());
+    input.addEventListener("input", () => {
+      const digits = input.value.replace(/\D/g, "");
+      if (digits !== input.value) input.value = digits;
+      setQty(p.id, digits === "" ? 0 : Number(digits));
+    });
+    nextOnEnter(input);
+    inputs.push(input);
+  }
+
+  function moneyInput(id, get, set) {
+    const input = document.createElement("input");
+    input.id = id;
+    input.type = "text";
+    input.inputMode = "numeric";
+    input.autocomplete = "off";
+    input.placeholder = "0";
+    input.maxLength = 9;
+    moneyFields.push({ input, get });
+    input.addEventListener("focus", () => input.select());
+    input.addEventListener("input", () => {
+      const digits = input.value.replace(/\D/g, "");
+      if (digits !== input.value) input.value = digits;
+      const n = Math.min(MAX_MONEY, Number(digits) || 0);
+      if (get(dayOf(selected)) !== n) change((d) => set(d, n));
+    });
+    nextOnEnter(input);
+    inputs.push(input);
+    return input;
+  }
+  for (const [field, name] of [["obed", "Обед"], ["avans", "Аванс"]]) {
+    const cost = document.createElement("div");
+    cost.className = "cost";
+    const label = document.createElement("label");
+    label.htmlFor = field;
+    label.textContent = name;
+    cost.append(label, moneyInput(field, (d) => d[field], (d, n) => { d[field] = n; }));
+    $("pair").append(cost);
+  }
+  const debtNotes = {};
+  for (const item of STOCK) {
+    const row = document.createElement("div");
+    row.className = "stock-row";
+    const name = document.createElement("div");
+    name.className = "stock-name";
+    name.textContent = item.name;
+    const note = document.createElement("small");
+    name.append(note);
+    debtNotes[item.id] = note;
+    const taken = moneyInput("s-" + item.id, (d) => d.stock[item.id], (d, n) => { d.stock[item.id] = n; });
+    taken.setAttribute("aria-label", item.name + ": складдан олинди");
+    const minus = moneyInput("minus-" + item.id, (d) => d.minus[item.id], (d, n) => { d.minus[item.id] = n; });
+    minus.setAttribute("aria-label", item.name + ": минус");
+    row.append(name, taken, minus);
+    $("stock-list").append(row);
+  }
+
+  const priceInputs = {};
+  for (const p of PRODUCTS) {
+    const row = document.createElement("div");
+    row.className = "money-row";
+    const label = document.createElement("label");
+    label.htmlFor = "p-" + p.id;
+    label.textContent = p.name;
+    const box = document.createElement("div");
+    box.className = "money";
+    const input = document.createElement("input");
+    input.id = "p-" + p.id;
+    input.type = "text";
+    input.inputMode = "numeric";
+    input.autocomplete = "off";
+    input.maxLength = 6;
+    input.addEventListener("focus", () => input.select());
+    input.addEventListener("input", () => { input.value = input.value.replace(/\D/g, ""); });
+    box.append(input, " тг");
+    row.append(label, box);
+    $("price-list").append(row);
+    priceInputs[p.id] = input;
+  }
+
+  function fillPrices() {
+    const day = dayOf(selected);
+    for (const p of PRODUCTS) priceInputs[p.id].value = String(day.prices[p.id]);
+    const d = parts(selected);
+    $("price-note").textContent = d.d + " " + MONTHS[d.m] + " кунидан бошлаб. Олдинги кунлар ўзгармайди.";
+    $("price-msg").textContent = "";
+  }
+
+  // A new price applies from the chosen day on: later price changes are replaced and saved days from that date are recalculated.
+  async function savePrices() {
+    const prices = {};
+    for (const p of PRODUCTS) {
+      const n = Number(priceInputs[p.id].value);
+      if (!n) {
+        $("price-msg").textContent = p.name + " нархини ёзинг.";
+        return;
+      }
+      prices[p.id] = n;
+    }
+    const from = selected;
+    const history = priceHistory.filter((h) => h.from < from).concat({ from, prices });
+    if (db) {
+      try {
+        await db.doc("settings/prices").set({ history, updatedAt: new Date().toISOString() });
+      } catch (e) {
+        $("price-msg").textContent = "Нарх сақланмади. Интернетни текширинг.";
+        return;
+      }
+    }
+    priceHistory = history;
+    for (const key of new Set([...docs.keys(), ...pending.keys()])) {
+      if (key < from) continue;
+      const day = dayOf(key);
+      if (!day.empty) pending.set(key, makeDay({ ...day, prices }));
+    }
+    renderAll();
+    $("price-msg").textContent = "Янги нарх сақланди.";
+    if (db && pending.size) {
+      setStatus("Сақланмоқда…");
+      flush();
+    }
+  }
+
+  function setQty(id, value) {
+    const n = Math.max(0, Math.min(MAX_QTY, value));
+    if (dayOf(selected).qty[id] === n) return;
+    change((d) => { d.qty[id] = n; });
+  }
+
+  function change(edit) {
+    const next = makeDay(dayOf(selected));
+    edit(next);
+    pending.set(selected, makeDay(next));
+    renderAll();
+    if (!db) return;
+    setStatus("Сақланмоқда…");
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(flush, SAVE_DELAY);
+  }
+
+  async function writeDay(key, day) {
+    const ref = db.collection("sales").doc(key);
+    if (day.empty) return ref.delete();
+    return ref.set({
+      date: key,
+      qty: day.qty,
+      prices: day.prices,
+      stock: day.stock,
+      obed: day.obed,
+      avans: day.avans,
+      minus: day.minus,
+      pieces: day.pieces,
+      total: day.total,
+      net: day.net,
+      taken: day.taken,
+      deducted: day.deducted,
+      updatedAt: new Date().toISOString(),
+    });
+  }
+
+  async function flush() {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+    if (flushing || !db || readOnly) return;
+    flushing = true;
+    let failed = null;
+    while (pending.size && !failed) {
+      const [key, day] = pending.entries().next().value;
+      try {
+        await writeDay(key, day);
+      } catch (e) {
+        if (e && e.code === "unavailable") {
+          await new Promise((r) => setTimeout(r, 600 + Math.random() * 800));
+          try { await writeDay(key, day); } catch (e2) { failed = e2 || {}; }
+        } else {
+          failed = e || {};
+        }
+      }
+      if (failed) break;
+      if (day.empty) docs.delete(key); else docs.set(key, day);
+      if (pending.get(key) === day) pending.delete(key);
+    }
+    flushing = false;
+    if (!failed) {
+      if (saveTimer === null) setStatus("Сақланди");
+      return;
+    }
+    const code = failed.code;
+    if (code === "invalid_argument") {
+      readOnly = true;
+      lock(true);
+      setStatus("Сизда ёзиш ҳуқуқи йўқ, саҳифа фақат кўриш учун.", true);
+    } else if (code === "quota_exceeded") {
+      setStatus("Хотира тўлди, ёзув сақланмади.", true);
+    } else if (code === "storage") {
+      setStatus("Браузер хотирага ёзишга рухсат бермади, ёзув сақланмади.", true);
+    } else {
+      setStatus("Сақланмади (" + (code || "хато") + "). Интернетни текширинг.", true);
+    }
+  }
+
+  let saveLabel = null;
+  async function saveNow() {
+    const btn = $("save");
+    const key = selected;
+    clearTimeout(saveLabel);
+    const restore = () => { saveLabel = setTimeout(() => { btn.textContent = "Сақлаш"; }, 2500); };
+    if (dayOf(key).empty && !pending.size) {
+      btn.textContent = "Рақам ёзинг";
+      restore();
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = "Сақланмоқда…";
+    await flush();
+    while (flushing) await new Promise((r) => setTimeout(r, 100));
+    let ok = !!db && pending.size === 0;
+    // Reads the day back from the store, so the button only says saved once the store itself confirms the record.
+    if (ok) {
+      ok = false;
+      let detail = "";
+      for (let i = 0; i < 5 && !ok; i++) {
+        if (i) await new Promise((r) => setTimeout(r, 1000));
+        try {
+          const snap = await db.collection("sales").doc(key).get();
+          const day = dayOf(key);
+          const doc = snap.exists ? snap.data() : null;
+          const same = day.empty ? !doc : !!doc && doc.total === day.total && doc.net === day.net && doc.taken === day.taken;
+          const { hasPendingWrites, fromCache } = snap.metadata;
+          ok = same && !hasPendingWrites && !fromCache;
+          detail = "same=" + same + " pending=" + hasPendingWrites + " cache=" + fromCache;
+        } catch (e) {
+          detail = (e && e.code) || "error";
+        }
+      }
+      if (!ok) setStatus("Сақланмади: базадан жавоб йўқ (" + detail + ")", true);
+    }
+    btn.textContent = ok ? "Сақланди ✓" : "Сақланмади";
+    btn.disabled = readOnly;
+    restore();
+  }
+
+  function select(key) {
+    if (saveTimer !== null) flush();
+    selected = key;
+    const p = parts(key);
+    view = { y: p.y, m: p.m };
+    renderAll();
+    fillPrices();
+    if (matchMedia("(max-width: 860px)").matches) {
+      const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      $("day").scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" });
+    }
+  }
+
+  function renderDay() {
+    const p = parts(selected);
+    const date = new Date(p.y, p.m, p.d);
+    $("day-title").textContent = p.d + " " + MONTHS[p.m] + ", " + WEEKDAYS[date.getDay()];
+    $("to-today").hidden = selected === todayKey();
+    const day = dayOf(selected);
+    for (const item of PRODUCTS) {
+      const f = fields[item.id];
+      const q = day.qty[item.id];
+      if (document.activeElement !== f.input) f.input.value = q ? String(q) : "";
+      f.price.textContent = money(day.prices[item.id]);
+      f.sum.textContent = money(q * day.prices[item.id]);
+    }
+    for (const f of moneyFields) {
+      if (document.activeElement !== f.input) {
+        const v = f.get(day);
+        f.input.value = v ? String(v) : "";
+      }
+    }
+    $("day-sum").textContent = money(day.total);
+    $("day-pieces").textContent = count(day.pieces) + " дона";
+    $("day-net").textContent = money(day.net);
+    $("day-minus").textContent = "Айирилди: " + money(day.obed + day.avans + day.deducted);
+    if (!$("prices").open) fillPrices();
+
+    let debt = 0;
+    const debts = {};
+    for (const item of STOCK) debts[item.id] = 0;
+    for (const key of new Set([...docs.keys(), ...pending.keys()])) {
+      const d = dayOf(key);
+      debt += d.taken - d.deducted;
+      for (const item of STOCK) debts[item.id] += d.stock[item.id] - d.minus[item.id];
+    }
+    for (const item of STOCK) {
+      const n = debts[item.id];
+      debtNotes[item.id].textContent = n > 0 ? "қарз " + money(n) : n < 0 ? "ортиқча " + money(-n) : "";
+    }
+    $("debt-label").textContent = debt < 0 ? "Складга ортиқча минус қилинган" : "Складга жами қарз";
+    $("debt-sum").textContent = money(Math.abs(debt));
+  }
+
+  function monthDays() {
+    const prefix = view.y + "-" + pad(view.m + 1) + "-";
+    const days = new Map();
+    for (const key of new Set([...docs.keys(), ...pending.keys()])) {
+      if (!key.startsWith(prefix)) continue;
+      const day = dayOf(key);
+      if (!day.empty) days.set(key, day);
+    }
+    return days;
+  }
+
+  function renderCalendar() {
+    const today = todayKey();
+    const now = parts(today);
+    $("month-title").textContent = cap(MONTHS[view.m]) + " " + view.y;
+    $("next").disabled = view.y === now.y && view.m === now.m;
+    const days = monthDays();
+    let max = 0;
+    for (const day of days.values()) max = Math.max(max, day.total);
+
+    const grid = $("calendar");
+    grid.textContent = "";
+    for (const w of WD_SHORT) {
+      const el = document.createElement("div");
+      el.className = "wd";
+      el.textContent = w;
+      grid.append(el);
+    }
+    const lead = (new Date(view.y, view.m, 1).getDay() + 6) % 7;
+    for (let i = 0; i < lead; i++) grid.append(document.createElement("span"));
+    const length = new Date(view.y, view.m + 1, 0).getDate();
+    for (let d = 1; d <= length; d++) {
+      const key = dateKey(view.y, view.m, d);
+      const day = days.get(key);
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "cell";
+      if (key === today) btn.classList.add("today");
+      if (key === selected) btn.classList.add("sel");
+      btn.disabled = key > today;
+      btn.setAttribute("aria-pressed", String(key === selected));
+      btn.setAttribute("aria-label", d + " " + MONTHS[view.m] + ": " + (day ? money(day.total) : "ёзув йўқ"));
+      if (day && day.total) btn.style.setProperty("--heat", Math.round(10 + 30 * (day.total / max)) + "%");
+      const num = document.createElement("b");
+      num.textContent = d;
+      const sum = document.createElement("small");
+      sum.textContent = !day ? "" : day.total ? compact(day.total) : "•";
+      btn.append(num, sum);
+      btn.addEventListener("click", () => select(key));
+      grid.append(btn);
+    }
+  }
+
+  function renderMonth() {
+    const days = monthDays();
+    const totals = {};
+    let sum = 0;
+    let pieces = 0;
+    let obed = 0;
+    let avans = 0;
+    let taken = 0;
+    let deducted = 0;
+    let saleDays = 0;
+    const stock = {};
+    const minus = {};
+    for (const item of STOCK) {
+      stock[item.id] = 0;
+      minus[item.id] = 0;
+    }
+    for (const p of PRODUCTS) totals[p.id] = { pieces: 0, sum: 0 };
+    for (const day of days.values()) {
+      sum += day.total;
+      pieces += day.pieces;
+      obed += day.obed;
+      avans += day.avans;
+      taken += day.taken;
+      deducted += day.deducted;
+      if (day.pieces > 0) saleDays += 1;
+      for (const item of STOCK) {
+        stock[item.id] += day.stock[item.id];
+        minus[item.id] += day.minus[item.id];
+      }
+      for (const p of PRODUCTS) {
+        totals[p.id].pieces += day.qty[p.id];
+        totals[p.id].sum += day.qty[p.id] * day.prices[p.id];
+      }
+    }
+    $("month-label").textContent = cap(MONTHS[view.m]) + " ойи тушуми";
+    $("month-sum").textContent = money(sum);
+    $("m-pieces").textContent = count(pieces) + " дона";
+    $("m-days").textContent = String(saleDays);
+    $("m-avg-pieces").textContent = count(saleDays ? Math.round((pieces / saleDays) * 10) / 10 : 0) + " дона";
+    $("m-obed").textContent = money(obed);
+    $("m-avans").textContent = money(avans);
+    $("m-net").textContent = money(sum - obed - avans - deducted);
+    const stockBody = $("s-rows");
+    stockBody.textContent = "";
+    for (const item of STOCK) {
+      const tr = document.createElement("tr");
+      for (const text of [item.name, money(stock[item.id]), money(minus[item.id])]) {
+        const td = document.createElement("td");
+        td.textContent = text;
+        tr.append(td);
+      }
+      stockBody.append(tr);
+    }
+    $("s-taken").textContent = money(taken);
+    $("s-deducted").textContent = money(deducted);
+    const body = $("m-rows");
+    body.textContent = "";
+    for (const p of PRODUCTS) {
+      const tr = document.createElement("tr");
+      for (const text of [p.name, count(totals[p.id].pieces), money(totals[p.id].sum)]) {
+        const td = document.createElement("td");
+        td.textContent = text;
+        tr.append(td);
+      }
+      body.append(tr);
+    }
+    $("m-foot-pieces").textContent = count(pieces);
+    $("m-foot-sum").textContent = money(sum);
+  }
+
+  function renderAll() {
+    renderDay();
+    renderCalendar();
+    renderMonth();
+  }
+
+  $("prev").addEventListener("click", () => {
+    view = view.m === 0 ? { y: view.y - 1, m: 11 } : { y: view.y, m: view.m - 1 };
+    renderCalendar();
+    renderMonth();
+  });
+  $("next").addEventListener("click", () => {
+    view = view.m === 11 ? { y: view.y + 1, m: 0 } : { y: view.y, m: view.m + 1 };
+    renderCalendar();
+    renderMonth();
+  });
+  $("to-today").addEventListener("click", () => select(todayKey()));
+  $("prices").addEventListener("toggle", () => { if ($("prices").open) fillPrices(); });
+  $("price-save").addEventListener("click", savePrices);
+  $("save").addEventListener("click", saveNow);
+  $("retry").addEventListener("click", saveNow);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden" && pending.size) flush();
+  });
+
+  renderAll();
+
+  async function connect() {
+    let cloud = null;
+    try {
+      cloud = window.claude && typeof window.claude.use === "function" ? await window.claude.use("db") : null;
+    } catch (e) {
+      cloud = null;
+    }
+    // Inside claude.ai the shared database answers; opened as a plain file or on another host, the browser's own storage takes over.
+    db = cloud || localStore();
+    $("notice").hidden = !!cloud;
+    let salesReady = false;
+    let pricesReady = false;
+    const unlock = () => {
+      if (!salesReady || !pricesReady) return;
+      clearTimeout(slow);
+      lock(readOnly);
+      setStatus("");
+    };
+    const fail = () => {
+      clearTimeout(slow);
+      setStatus("Маълумот олинмади. Саҳифани янгиланг.", true);
+      $("retry").hidden = true;
+    };
+    const slow = setTimeout(() => {
+      setStatus("Маълумотга уланиб бўлмади, кутилмоқда…", true);
+      $("retry").hidden = true;
+    }, 10000);
+    db.collection("sales").onSnapshot(
+      (snap) => {
+        docs = new Map(snap.docs.filter((d) => d.exists).map((d) => [d.id, d.data()]));
+        // Entry stays locked until the store confirms the data, so a stale copy cannot overwrite a saved day.
+        if (!snap.metadata.fromCache && !salesReady) {
+          salesReady = true;
+          unlock();
+        }
+        renderAll();
+      },
+      fail
+    );
+    db.doc("settings/prices").onSnapshot(
+      (snap) => {
+        const data = snap.exists ? snap.data() : null;
+        priceHistory = data && Array.isArray(data.history) ? data.history : [];
+        if (!snap.metadata.fromCache && !pricesReady) {
+          pricesReady = true;
+          unlock();
+        }
+        renderAll();
+      },
+      fail
+    );
+  }
+  connect();
+})();
+</script>
+</body>
+</html>
